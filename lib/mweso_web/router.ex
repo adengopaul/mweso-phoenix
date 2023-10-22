@@ -18,7 +18,9 @@ defmodule MwesoWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    resources "/game", GameController, only: [:index]
   end
+
 
   # Other scopes may use custom stacks.
   # scope "/api", MwesoWeb do

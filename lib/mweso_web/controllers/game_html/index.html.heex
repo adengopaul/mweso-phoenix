@@ -1,0 +1,45 @@
+<div class="grid grid-rows-5 grid-flow-col gap-4 place-content-stretch">
+  <div class="row-span-1 col-span-6 p-6 max-w-sm mx-auto flex items-center space-x-4">
+    <div class="grow">
+      <div class="text-xl font-medium text-black text-center">Omweso</div>
+      <p class="text-slate-500">A centuries old game.</p>
+    </div>
+  </div>
+  <div class="row-span-4 col-span-6 ">
+    <div class="grid grid-rows-4 grid-cols-8 flex items-center">
+      <!-- Player 2 -->
+      <%= for index <- 7..0 do %>
+        <div class="w-14 h-14">
+          <%= Enum.at(@player2, index).seeds %>
+        </div>
+
+        <% end %>
+
+          <%= for index <- 8..15 do %>
+            <div class="w-14 h-14">
+              <%= Enum.at(@player2, index).seeds %>
+            </div>
+
+            <% end %>
+              <!-- Player 1 -->
+              <%= for index <- 15..8 do %>
+
+                <div class="w-14 h-14">
+                  <%= Enum.at(@player2, index).seeds %>
+                </div>
+
+                <% end %>
+
+                  <%= for index <- 0..7 do %>
+                    <div class="w-14 h-14">
+                      <%= Enum.at(@player2, index).seeds %>
+                    </div>
+
+                    <% end %>
+
+
+                      <div class="">Footer</div>
+    </div>
+  </div>
+  <!-- <div class="row-span-1 col-span-6 ">Footer</div> -->
+</div>
