@@ -1,8 +1,9 @@
 defmodule MwesoWeb.GameController do
   use MwesoWeb, :controller
 
+  @button_size "w-full h-full"
   def start(player, 16) do
-    player = [%{color: "0xffffb6c1", seeds: 2} | player]
+    player = [%{color: "bg-rose-500", seeds: 2} | player]
 
     player
     |> Jason.encode!()
@@ -11,7 +12,7 @@ defmodule MwesoWeb.GameController do
 
   def start(player, i) do
     start(player, i + 1)
-    player = [%{color: "0xffffb6c1", seeds: 2} | player]
+    player = [%{color: "bg-rose-500", seeds: 2} | player]
 
     player
     |> Jason.encode!()
@@ -36,34 +37,35 @@ defmodule MwesoWeb.GameController do
     # |> IO.puts()
     # Agent.stop(agent)
 
+
     Enum.each(1..16, fn i ->
       if formation4x8 do
         cond do
           i <= 8 ->
             Agent.update(agent1, fn player1 ->
-              [%{ground: i, color: "0xffffb6c1", seeds: 4} | player1]
+              [%{ground: i, color: "bg-rose-500", seeds: 4} | player1]
             end)
 
             Agent.update(agent2, fn player2 ->
-              [%{ground: i, color: "0xffffb6c1", seeds: 4} | player2]
+              [%{ground: i, color: "bg-sky-#{:rand.uniform(9)}00", seeds: 4} | player2]
             end)
 
           i >= 9 ->
             Agent.update(agent1, fn player1 ->
-              [%{ground: i, color: "0xffffb6c1", seeds: 0} | player1]
+              [%{ground: i, color: "bg-rose-#{:rand.uniform(9)}00", seeds: 0} | player1]
             end)
 
             Agent.update(agent2, fn player2 ->
-              [%{ground: i, color: "0xffffb6c1", seeds: 0} | player2]
+              [%{ground: i, color: "bg-sky-#{:rand.uniform(9)}00", seeds: 0} | player2]
             end)
         end
       else
         Agent.update(agent1, fn player1 ->
-          [%{ground: i, color: "0xffffb6c1", seeds: 2} | player1]
+          [%{ground: i, color: "bg-rose-#{:rand.uniform(9)}00", seeds: 2} | player1]
         end)
 
         Agent.update(agent2, fn player2 ->
-          [%{ground: i, color: "0xffffb6c1", seeds: 2} | player2]
+          [%{ground: i, color: "bg-sky-#{:rand.uniform(9)}00", seeds: 2} | player2]
         end)
       end
     end)
@@ -80,6 +82,6 @@ defmodule MwesoWeb.GameController do
     # |> IO.puts()
 
     # Agent.stop(agent1)
-    render(conn, :index, player1: player1, player2: player2)
+    render(conn, :index, player1: player1, player2: player2, button_size: @button_size)
   end
 end
