@@ -19,6 +19,7 @@ defmodule MwesoWeb.Router do
 
     get "/", PageController, :home
     resources "/game", GameController, only: [:index]
+    get "/socket-game", SocketGameController, :index
   end
 
   scope "/", MwesoWeb do

@@ -47,4 +47,8 @@ defmodule MwesoWeb.Endpoint do
   plug Plug.Head
   plug Plug.Session, @session_options
   plug MwesoWeb.Router
+
+  socket "/socket", MwesoWeb.UserSocket,
+    websocket: true,
+    longpoll: false
 end
