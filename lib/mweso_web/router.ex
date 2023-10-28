@@ -25,7 +25,7 @@ defmodule MwesoWeb.Router do
   scope "/", MwesoWeb do
     pipe_through :browser
 
-    live "/live", GameBoard
+    live "/live-view", GameBoard
   end
 
   # Other scopes may use custom stacks.

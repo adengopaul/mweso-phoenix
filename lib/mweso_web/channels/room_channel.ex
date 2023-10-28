@@ -1,13 +1,13 @@
 defmodule MwesoWeb.RoomChannel do
   use MwesoWeb, :channel
 
-  def timer(start, 1) do
-    timediff = Time.diff(Time.utc_now(), start)
+  def timer(start, 0) do
+    timediff = Time.diff(Time.utc_now(), start, :second)
   end
 
   def timer(start, time) do
-    timediff = Time.diff(Time.utc_now(), start)
-    timer(start, timediff)
+    timediff = Time.diff(Time.utc_now(), start, :second)
+    timer(start, time - timediff)
   end
 
   @impl true
@@ -106,16 +106,14 @@ defmodule MwesoWeb.RoomChannel do
   end
 
   def handle_in("ground_click", payload, socket) do
-    # payload |> Jason.encode!() |> IO.puts()
-    # payload["index"] || payload[:index] |> Jason.encode!() |> IO.puts()
-    # payload[:index] |> Jason.encode!() |> IO.puts()
     index = payload["index"] || payload[:index]
-    seeds = payload["seeds"] || payload[:seeds]
 
     ground =
       Agent.get(Player1, fn player1 ->
         Enum.at(player1, index)
       end)
+
+    seeds = ground[:seeds]
 
     Agent.update(Seeds1, fn seeds1 -> seeds1 + seeds end)
     ground = Map.replace(ground, :seeds, 0)
@@ -127,6 +125,7 @@ defmodule MwesoWeb.RoomChannel do
 
     player1 = Agent.get(Player1, fn player1 -> player1 end)
     player2 = Agent.get(Player2, fn player2 -> player2 end)
+    seeds1 = Agent.get(Seeds1, fn seeds -> seeds end)
 
     # player1
     # |> Enum.at(0)
@@ -134,7 +133,7 @@ defmodule MwesoWeb.RoomChannel do
     # |> IO.puts()
 
     Agent.update(Sowing, fn _sowing -> true end)
-    push(socket, "update_game", %{player1: player1, player2: player2})
+    push(socket, "update_game", %{player1: player1, player2: player2, seeds1: seeds1})
 
     cond do
       ground[:index] < 15 ->
@@ -148,13 +147,13 @@ defmodule MwesoWeb.RoomChannel do
   end
 
   defp sow(ground, socket) do
-    timer(Time.utc_now(), 0)
+    timer(Time.utc_now(), 1)
 
     sowFn(ground, socket)
   end
 
   defp sowFn(ground, socket) do
-    ground_seeds = ground["seeds"] || ground[:seeds]
+    ground_seeds = ground[:seeds]
 
     ground_seeds = ground_seeds + 1
     ground = Map.replace(ground, :seeds, ground_seeds)
@@ -176,12 +175,36 @@ defmodule MwesoWeb.RoomChannel do
     # |> Jason.encode!()
     # |> IO.puts()
 
-    push(socket, "update_game", %{player1: player1, player2: player2})
+    push(socket, "update_game", %{player1: player1, player2: player2, seeds1: playing_seeds})
     {:noreply, socket}
 
     if playing_seeds == 0 do
       if ground_seeds > 1 do
-        handle_in("ground_click", ground, socket)
+        if ground[:index] > 7 && Enum.at(player2, ground[:index] - 8)[:seeds] > 0 &&
+             Enum.at(player2, 15 - (ground[:index] - 8))[:seeds] > 0 do
+          opp_ground1 = Enum.at(player2, ground[:index] - 8)
+          opp_ground2 = Enum.at(player2, 15 - (ground[:index] - 8))
+          seeds = ground[:seeds] + opp_ground1[:seeds] + opp_ground2[:seeds]
+
+          opp_ground1 = Map.replace(opp_ground1, :seeds, 0)
+          opp_ground2 = Map.replace(opp_ground2, :seeds, 0)
+
+          Agent.update(Player2, fn player ->
+            List.replace_at(player, opp_ground1[:index], opp_ground1)
+          end)
+
+          Agent.update(Player2, fn player ->
+            List.replace_at(player, opp_ground2[:index], opp_ground2)
+          end)
+
+          ground = Map.replace(ground, :seeds, seeds)
+          # ground |> Jason.encode!() |> IO.puts()
+          # opp_ground1 |> Jason.encode!() |> IO.puts()
+          # opp_ground2 |> Jason.encode!() |> IO.puts()
+          handle_in("ground_click", ground, socket)
+        else
+          handle_in("ground_click", ground, socket)
+        end
       else
         Agent.update(Sowing, fn sowing -> false end)
       end

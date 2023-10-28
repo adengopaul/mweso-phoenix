@@ -70,24 +70,23 @@ channel.join()
   })
   .receive("error", resp => { console.log("Unable to join", resp) })
 
-let player1 = []
-let player2 = []
+let player1grounds = []
+let player2grounds = []
 
-let groundClick = (data) => {
-  console.log(data)
-  if(data["seeds"] <= 1) return;
-  channel.push("ground_click", data)
+let groundClick = (index) => {
+  if(player1grounds[index]["seeds"] <= 1) return;
+  channel.push("ground_click", {index})
 }
 channel.on("view_update", payload => {
-  console.log(payload)
-  player1 = payload.player1;
-  player2 = payload.player2;
+  let { player1, player2, seeds1 } = payload
+  player1grounds = player1 
+  player2grounds = player2 
 
   for (let i = 7; i >= 0; i--) {
     let button = document.createElement("button")
-    button.classList.add(player1[i].color, "rounded-full", "hover:bg-cyan-600", "w-14", "h-14")
+    button.classList.add(player1[i].color, "rounded-full", "hover:bg-cyan-600", "w-14", "h-14", "text-2xl")
     button.setAttribute("id", `${player1[i].ground}player1`)
-    button.onclick = (event) => groundClick(player1[i])
+    button.onclick = (event) => groundClick(i)
 
     // button.ondblclick
     button.textContent = player1[i].seeds
@@ -96,9 +95,9 @@ channel.on("view_update", payload => {
 
   for (let i = 8; i < 16; i++) {
     let button = document.createElement("button")
-    button.classList.add(player1[i].color, "rounded-full", "hover:bg-cyan-600", "w-14", "h-14")
+    button.classList.add(player1[i].color, "rounded-full", "hover:bg-cyan-600", "w-14", "h-14", "text-2xl")
     button.setAttribute("id", `${player1[i].ground}player1`)
-    button.onclick = (event) => groundClick(player1[i])
+    button.onclick = (event) => groundClick(i)
     // button.ondblclick
     button.textContent = player1[i].seeds
     innerGrid.prepend(button)
@@ -106,24 +105,27 @@ channel.on("view_update", payload => {
 
   for (let i = 15; i >= 8; i--) {
     let button = document.createElement("button")
-    button.classList.add(player2[i].color, "rounded-full", "hover:bg-cyan-600", "w-14", "h-14")
+    button.classList.add(player2[i].color, "rounded-full", "hover:bg-cyan-600", "w-14", "h-14", "text-2xl")
     button.setAttribute("id", `${player2[i].ground}player2`)
-    button.textContent = player2[i].ground
+    button.textContent = player2[i].seeds
     innerGrid.prepend(button)
   }
   for (let i = 0; i <= 7; i++) {
     let button = document.createElement("button")
-    button.classList.add(player2[i].color, "rounded-full", "hover:bg-cyan-600", "w-14", "h-14")
+    button.classList.add(player2[i].color, "rounded-full", "hover:bg-cyan-600", "w-14", "h-14", "text-2xl")
     button.setAttribute("id", `${player2[i].ground}player2`)
-    button.textContent = player2[i].ground
+    button.textContent = player2[i].seeds
     innerGrid.prepend(button)
   }
 
 })
 
 channel.on("update_game", payload => {
-  let { player1, player2 } = payload
-  // console.log({ player1, player2 })
+  let { player1, player2, seeds1 } = payload
+  player1grounds = player1 
+  player2grounds = player2 
+
+  document.getElementById("seeds1").textContent = seeds1
 
   for (let i = 0; i < 16; i++) {
     let button1 = document.getElementById(`${player1[i].ground}player1`)
@@ -131,6 +133,8 @@ channel.on("update_game", payload => {
 
     button1.textContent = player1[i].seeds
     button2.textContent = player2[i].seeds
+
+    button1.className
   }
 })
 
