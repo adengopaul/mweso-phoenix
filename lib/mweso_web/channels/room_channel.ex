@@ -147,7 +147,8 @@ defmodule MwesoWeb.RoomChannel do
   end
 
   defp sow(ground, socket) do
-    timer(Time.utc_now(), 1)
+    # timer(Time.utc_now(), 1)
+    :timer.sleep(250)
 
     sowFn(ground, socket)
   end
